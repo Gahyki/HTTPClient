@@ -39,7 +39,11 @@ def run_post(verbose, header, data, file, url):
         print(request)
         conn.send(request)
         response = conn.recv(10000)
-        print(response.decode("utf-8"))
+        response = response.decode("utf-8")
+        if verbose:
+            print(response)
+        else:
+            print(response[response.index('\r\n\r\n')+4:])
     finally:
         conn.close()
 
