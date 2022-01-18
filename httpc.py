@@ -6,17 +6,13 @@ import sys
 def run_get(verbose, header, url):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     parsed_url = parse.urlsplit(url)
-    print(parsed_url)
     host = parsed_url.netloc
     path = parsed_url.path if parsed_url.path else '/'
     query = f"?{parsed_url.query}" if parsed_url.query else ''
-    print(path)
-    print(query)
 
     try:
         conn.connect((host, 80))
-        request = str.encode(f"GET {parsed_url.path}{query} HTTP/1.1\r\nHost: {host}\r\n\r\n")
-        print(request)
+        request = str.encode(f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n")
         conn.send(request)
         response = conn.recv(10000)
         print(response.decode("utf-8"))
