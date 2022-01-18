@@ -3,7 +3,7 @@ import socket
 import argparse
 import sys
 
-def run_post(verbose, header, data, file, url):
+def run_get(verbose, header, url):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     parsed_url = parse.urlsplit(url)
     print(parsed_url)
@@ -101,6 +101,8 @@ Use "httpc help [command]" for more information about a command.
         print(args.h)
         print(args.url)
         print("---------------------------")
+        run_get(args.v, args.h, args.url)
+
 
     elif cmdargs[1] == "post":
         action = parser.add_mutually_exclusive_group(required=False)
@@ -116,7 +118,7 @@ Use "httpc help [command]" for more information about a command.
         print(args.f)
         print(args.url)
         print("---------------------------")
-        run_post(args.v, args.h, args.d, args.f, args.url)
+        # run_post(args.v, args.h, args.d, args.f, args.url)
 
     else:
         print("Missing arguments. Run [help] for usage")
