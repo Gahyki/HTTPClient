@@ -1,0 +1,99 @@
+import socket
+import argparse
+import sys
+
+
+def run_client(host, port):
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        conn.connect((host, port))
+        print("Type any thing then ENTER. Press Ctrl+C to terminate")
+        while True:
+            line = sys.stdin.readline(1024)
+            request = line.encode("utf-8")
+            conn.sendall(request)
+            # MSG_WAITALL waits for full request or error
+            response = conn.recv(len(request), socket.MSG_WAITALL)
+            sys.stdout.write("Replied: " + response.decode("utf-8"))
+    finally:
+        conn.close()
+
+def run():
+    cmdargs = list(sys.argv)
+    argslen = len(cmdargs)
+
+    if argslen < 1:
+        print("Missing arguments. Run [help] for usage")
+        return
+
+    if cmdargs[1] == "help":
+        if argslen > 2 and cmdargs[2] == "get":
+            print("""httpc help get
+
+usage: httpc get [-v] [-h key:value] URL
+
+Get executes a HTTP GET request for a given URL.
+    -v Prints the detail of the response such as protocol, status, and headers.
+    -h key:value Associates headers to HTTP Request with the format 'key:value'.
+            """)
+        
+        elif argslen > 2 and cmdargs[2] == "post":
+            print("""httpc help post
+
+usage: httpc post [-v] [-h key:value] [-d inline-data] [-f file] URL
+
+Post executes a HTTP POST request for a given URL with inline data or from file.
+    -v Prints the detail of the response such as protocol, status, and headers.
+    -h key:value Associates headers to HTTP Request with the format 'key:value'.
+    -d string Associates an inline data to the body HTTP POST request.
+    -f file Associates the content of a file to the body HTTP POST request.
+Either [-d] or [-f] can be used but not both.
+            """)
+        else:
+            print("""httpc help
+
+httpc is a curl-like application but supports HTTP protocol only.
+Usage:
+    httpc command [arguments]
+The commands are:
+    get executes a HTTP GET request and prints the response.
+    post executes a HTTP POST request and prints the response.
+    help prints this screen.
+
+Use "httpc help [command]" for more information about a command.
+            """)
+        return
+
+    if cmdargs[1] == "command":
+        parser = argparse.ArgumentParser(add_help=False, description="httpc is a curl-like application but supports HTTP protocol only.")
+        parser.add_argument("command")
+        parser.add_argument('request', choices = ['get', 'post'])
+        parser.add_argument("-v", help="Prints the detail of the response such as protocol, status, and headers.", action='store_true', default=False, required=False)
+        parser.add_argument("-h", help="key:value Associates headers to HTTP Request with the format 'key:value'.", action='append', default=[], required=False)
+        action = parser.add_mutually_exclusive_group(required=False)
+        action.add_argument('-d', help="Associates an inline data to the body HTTP POST request.", required=False)
+        action.add_argument('-f', help="Associates the content of a file to the body HTTP POST request.", required=False)
+        parser.add_argument('url')
+        args = parser.parse_args()
+
+        if args.request == "get":
+            print(args.v)
+            print(args.h)
+            print(args.url)
+
+
+        elif args.request == "post":
+            print(args.v)
+            print(args.h)
+            print(args.d)
+            print(args.f)
+            print(args.url)
+
+        else:
+            print("Missing arguments. Run [help] for usage")
+            return
+
+if __name__ == "__main__":
+    run()
+
+# run_client(args.host, args.port)
