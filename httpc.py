@@ -115,11 +115,6 @@ Use "httpc help [command]" for more information about a command.
 
     if cmdargs[1] == "get":
         args = parser.parse_args()
-
-        print(args.v)
-        print(args.h)
-        print(args.url)
-        print("---------------------------")
         run_get(args.v, args.h, args.url)
 
 
