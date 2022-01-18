@@ -1,6 +1,22 @@
+from urllib import parse
 import socket
 import argparse
 import sys
+
+def run_post(verbose, header, data, file, url):
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    parsed_url = parse.urlsplit(url)
+    print(parsed_url)
+    path = parsed_url.path if parsed_url.path else '/'
+    print(path)
+    try:
+        conn.connect((parsed_url.netloc, 80))
+        request = str.encode(f"GET {parsed_url.path} HTTP/1.1\r\n\r\n")
+        conn.send(request)
+        response = conn.recv(10000)
+        print(response.decode("utf-8"))
+    finally:
+        conn.close()
 
 
 def run_client(host, port):
@@ -64,9 +80,8 @@ Use "httpc help [command]" for more information about a command.
             """)
         return
 
-    if cmdargs[1] == "command":
+    else:
         parser = argparse.ArgumentParser(add_help=False, description="httpc is a curl-like application but supports HTTP protocol only.")
-        parser.add_argument("command")
         parser.add_argument('request', choices = ['get', 'post'])
         parser.add_argument("-v", help="Prints the detail of the response such as protocol, status, and headers.", action='store_true', default=False, required=False)
         parser.add_argument("-h", help="key:value Associates headers to HTTP Request with the format 'key:value'.", action='append', default=[], required=False)
@@ -80,6 +95,7 @@ Use "httpc help [command]" for more information about a command.
             print(args.v)
             print(args.h)
             print(args.url)
+            print("---------------------------")
 
 
         elif args.request == "post":
@@ -88,6 +104,8 @@ Use "httpc help [command]" for more information about a command.
             print(args.d)
             print(args.f)
             print(args.url)
+            print("---------------------------")
+            run_post(args.v, args.h, args.d, args.f, args.url)
 
         else:
             print("Missing arguments. Run [help] for usage")
