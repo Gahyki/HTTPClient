@@ -3,6 +3,7 @@ import socket
 import argparse
 import sys
 
+
 def run_get(verbose, header, url):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     parsed_url = parse.urlsplit(url)
@@ -15,7 +16,12 @@ def run_get(verbose, header, url):
         request = str.encode(f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n")
         conn.send(request)
         response = conn.recv(10000)
-        print(response.decode("utf-8"))
+        response = response.decode("utf-8")
+        if verbose:
+            print(response)
+        else:
+            print(response[response.index('\r\n\r\n')+4:])
+
     finally:
         conn.close()
 
