@@ -19,6 +19,23 @@ def run_get(verbose, header, url):
     finally:
         conn.close()
 
+def run_post(verbose, header, data, file, url):
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    parsed_url = parse.urlsplit(url)
+    host = parsed_url.netloc
+    path = parsed_url.path if parsed_url.path else '/'
+    query = f"?{parsed_url.query}" if parsed_url.query else ''
+    content_lenght = len(data)
+    header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
+    try:
+        conn.connect((host, 80))
+        request = str.encode(f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\nContent-Length: {content_lenght}\r\n{header_str}\r\n{data}\r\n\r\n")
+        print(request)
+        conn.send(request)
+        response = conn.recv(10000)
+        print(response.decode("utf-8"))
+    finally:
+        conn.close()
 
 def run_client(host, port):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -114,7 +131,7 @@ Use "httpc help [command]" for more information about a command.
         print(args.f)
         print(args.url)
         print("---------------------------")
-        # run_post(args.v, args.h, args.d, args.f, args.url)
+        run_post(args.v, args.h, args.d, args.f, args.url)
 
     else:
         print("Missing arguments. Run [help] for usage")
