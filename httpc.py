@@ -80,36 +80,43 @@ Use "httpc help [command]" for more information about a command.
             """)
         return
 
-    else:
-        parser = argparse.ArgumentParser(add_help=False, description="httpc is a curl-like application but supports HTTP protocol only.")
-        parser.add_argument('request', choices = ['get', 'post'])
-        parser.add_argument("-v", help="Prints the detail of the response such as protocol, status, and headers.", action='store_true', default=False, required=False)
-        parser.add_argument("-h", help="key:value Associates headers to HTTP Request with the format 'key:value'.", action='append', default=[], required=False)
-        action = parser.add_mutually_exclusive_group(required=False)
-        action.add_argument('-d', help="Associates an inline data to the body HTTP POST request.", required=False)
-        action.add_argument('-f', help="Associates the content of a file to the body HTTP POST request.", required=False)
-        parser.add_argument('url')
+    parser = argparse.ArgumentParser(add_help=False,
+                                     description="httpc is a curl-like application but supports HTTP protocol only.")
+    parser.add_argument('request', choices=['get', 'post'])
+    parser.add_argument("-v", help="Prints the detail of the response such as protocol, status, and headers.",
+                        action='store_true', default=False, required=False)
+    parser.add_argument("-h", help="key:value Associates headers to HTTP Request with the format 'key:value'.",
+                        action='append', default=[], required=False)
+    parser.add_argument('url')
+
+    if cmdargs[1] == "get":
         args = parser.parse_args()
 
-        if args.request == "get":
-            print(args.v)
-            print(args.h)
-            print(args.url)
-            print("---------------------------")
+        print(args.v)
+        print(args.h)
+        print(args.url)
+        print("---------------------------")
 
+    elif cmdargs[1] == "post":
+        action = parser.add_mutually_exclusive_group(required=False)
+        action.add_argument('-d', help="Associates an inline data to the body HTTP POST request.", required=False)
+        action.add_argument('-f', help="Associates the content of a file to the body HTTP POST request.",
+                            required=False)
 
-        elif args.request == "post":
-            print(args.v)
-            print(args.h)
-            print(args.d)
-            print(args.f)
-            print(args.url)
-            print("---------------------------")
-            run_post(args.v, args.h, args.d, args.f, args.url)
+        args = parser.parse_args()
 
-        else:
-            print("Missing arguments. Run [help] for usage")
-            return
+        print(args.v)
+        print(args.h)
+        print(args.d)
+        print(args.f)
+        print(args.url)
+        print("---------------------------")
+        run_post(args.v, args.h, args.d, args.f, args.url)
+
+    else:
+        print("Missing arguments. Run [help] for usage")
+        return
+
 
 if __name__ == "__main__":
     run()
