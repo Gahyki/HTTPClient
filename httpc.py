@@ -10,10 +10,10 @@ def run_get(verbose, header, url):
     host = parsed_url.netloc
     path = parsed_url.path if parsed_url.path else '/'
     query = f"?{parsed_url.query}" if parsed_url.query else ''
-
+    header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
     try:
         conn.connect((host, 80))
-        request = str.encode(f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n")
+        request = str.encode(f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n{header_str}\r\n\r\n")
         conn.send(request)
         response = conn.recv(10000)
         response = response.decode("utf-8")
@@ -119,11 +119,6 @@ Use "httpc help [command]" for more information about a command.
 
     if cmdargs[1] == "get":
         args = parser.parse_args()
-
-        print(args.v)
-        print(args.h)
-        print(args.url)
-        print("---------------------------")
         run_get(args.v, args.h, args.url)
 
 
