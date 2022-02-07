@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from urllib import parse
 import socket
 import argparse
