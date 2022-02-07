@@ -1,22 +1,44 @@
 #!/usr/bin/env python3
 
+import random, string
 from urllib import parse
 import socket
 import argparse
 import sys
 
 
-def run_get(verbose, header, url):
-    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# -------------------- Helper Methods ------------------------
+def deconstruct_url(url):
     parsed_url = parse.urlsplit(url)
     host = parsed_url.netloc
     path = parsed_url.path if parsed_url.path else '/'
     query = f"?{parsed_url.query}" if parsed_url.query else ''
-    header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
+    return host, path, query
+
+def get_file_data(file):
+    # boundary = '----WebKitFormBoundary' + ''.join(random.sample(string.ascii_letters + string.digits, 15))
+    boundary= "boundary"
+    file = open(file, 'r')
+    file_str = file.read()
+    data = '--' + boundary + '\r\n'
+    data += f'Content-Disposition: form-data;name="file1";filename="{file.name}"\r\n'
+    data += 'Content-Type: text/plain\r\n\r\n'
+    data += file_str + '\r\n'
+    data += '--' + boundary + '--'
+    content_lenght = len(data.replace("\r\n", ""))
+    file.close()
+    return (boundary, content_lenght, data)
+
+def send_request(host, port, encoded_text, verbose):
+    # Setting up socket for TCP connection
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        conn.connect((host, 80))
-        request = str.encode(f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n{header_str}\r\n\r\n")
+        # Attempt to connect at port 80
+        conn.connect((host, port))
+        request = str.encode(encoded_text)
+        # Send request
         conn.send(request)
+        # Get http response and print according to verbose settings
         response = conn.recv(10000)
         response = response.decode("utf-8")
         if verbose:
@@ -25,29 +47,39 @@ def run_get(verbose, header, url):
             print(response[response.index('\r\n\r\n')+4:])
 
     finally:
+        # Close TCP connection
         conn.close()
+
+
+# -------------------- Request Methods ------------------------
+def run_get(verbose, header, url):
+    # Deconstructing url to get required data
+    host, path, query = deconstruct_url(url)
+    # Assemble header(s) and text
+    header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
+    string_to_send = f"GET {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n{header_str}\r\n\r\n"
+    # Send request
+    send_request(host, 80, string_to_send, verbose)
 
 def run_post(verbose, header, data, file, url):
-    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    parsed_url = parse.urlsplit(url)
-    host = parsed_url.netloc
-    path = parsed_url.path if parsed_url.path else '/'
-    query = f"?{parsed_url.query}" if parsed_url.query else ''
-    content_lenght = len(data)
+    # Deconstructing url
+    host, path, query = deconstruct_url(url)
+    # Assembling request data
+    content_lenght = 0
+    content_type = ""
+    if data:
+        content_lenght = len(data)
+        content_type = "application/json"
+    if file:
+        (boundary, content_lenght, data) = get_file_data(file)
+        content_type = f'multipart/form-data;boundary="boundary"'
+
     header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
-    try:
-        conn.connect((host, 80))
-        request = str.encode(f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\nContent-Length: {content_lenght}\r\n{header_str}\r\n{data}\r\n\r\n")
-        print(request)
-        conn.send(request)
-        response = conn.recv(10000)
-        response = response.decode("utf-8")
-        if verbose:
-            print(response)
-        else:
-            print(response[response.index('\r\n\r\n')+4:])
-    finally:
-        conn.close()
+    string_to_send = f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_lenght}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
+    print(string_to_send)
+
+    # Send request
+    send_request(host, 80, string_to_send, verbose)
 
 def run_client(host, port):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,6 +96,8 @@ def run_client(host, port):
     finally:
         conn.close()
 
+
+# -------------------- Main Method ------------------------
 def run():
     cmdargs = list(sys.argv)
     argslen = len(cmdargs)
