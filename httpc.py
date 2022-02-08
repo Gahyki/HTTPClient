@@ -16,16 +16,15 @@ def deconstruct_url(url):
     return host, path, query
 
 def get_file_data(file):
-    # boundary = '----WebKitFormBoundary' + ''.join(random.sample(string.ascii_letters + string.digits, 15))
-    boundary= "boundary"
+    boundary = '--------------------------' + ''.join(random.choices(string.digits, k=24))
     file = open(file, 'r')
     file_str = file.read()
     data = '--' + boundary + '\r\n'
-    data += f'Content-Disposition: form-data;name="file1";filename="{file.name}"\r\n'
+    data += f'Content-Disposition: form-data; name=""; filename="{file.name}"\r\n'
     data += 'Content-Type: text/plain\r\n\r\n'
     data += file_str + '\r\n'
     data += '--' + boundary + '--'
-    content_lenght = len(data.replace("\r\n", ""))
+    content_lenght = len(data) + 2
     file.close()
     return (boundary, content_lenght, data)
 
@@ -72,12 +71,9 @@ def run_post(verbose, header, data, file, url):
         content_type = "application/json"
     if file:
         (boundary, content_lenght, data) = get_file_data(file)
-        content_type = f'multipart/form-data;boundary="boundary"'
-
+        content_type = f'multipart/form-data; boundary={boundary}'
     header_str = '\r\n'.join([': '.join(h.split(':')) for h in header]) + '\r\n'
     string_to_send = f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_lenght}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
-    print(string_to_send)
-
     # Send request
     send_request(host, 80, string_to_send, verbose)
 
