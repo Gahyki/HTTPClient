@@ -23,7 +23,7 @@ def get_file_data(file):
     file = open(file, "r")
     file_str = file.read()
     data = "--" + boundary + "\r\n"
-    data += f'Content-Disposition: form-data; name=""; filename="{file.name}"\r\n'
+    data += f'Content-Disposition: form-data; name="null"; filename="{file.name}"\r\n'
     data += "Content-Type: text/plain\r\n\r\n"
     data += file_str + "\r\n"
     data += "--" + boundary + "--"
