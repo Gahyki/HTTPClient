@@ -15,6 +15,11 @@ python3 httpc.py get "http://httpbin.org/get?course=networking&assignment=1%27" 
 curl --location --request GET 'http://httpbin.org/get?course=networking&assignment=1%27' > outputCurl.json
 python3 compareTest.py
 
+# Compare Redirect
+python3 httpc.py get -h email:123@gmail.com -h password:1234 http://httpbingo.org/redirect/6 > outputHttpc.json
+curl --location --request GET http://httpbingo.org/redirect/6  --header 'email: 123@gmail.com' --header 'password: 1234' --header 'Connection: close' > outputCurl.json
+python3 compareTest.py
+
 # Delete output files
 rm outputHttpc.json
 rm outputCurl.json

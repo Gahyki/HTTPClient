@@ -21,7 +21,14 @@ if "data" in httpc_out and httpc_out["data"]:
     print(httpc_out["data"] == curl_out["data"])
 
 for k, v in httpc_out["headers"].items():
-    if k in ["Content-Length", "Content-Type", "X-Amzn-Trace-Id"]:
+    if k in [
+        "Content-Length",
+        "Content-Type",
+        "X-Amzn-Trace-Id",
+        "Fly-Dispatch-Start",
+        "Fly-Request-Id",
+        "X-Request-Start",
+    ]:
         continue
     print(f"TEST COMPARE HEADER {k} EQUALS")
     print(v == curl_out["headers"][k])

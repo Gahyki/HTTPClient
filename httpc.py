@@ -51,13 +51,17 @@ def get_response_code(response):
     status = int(response.split()[1])
     return status
 
+
 def get_new_location(response):
     res = response.split()
-    idx = res.index('location:')
-    location = res[idx+1]
+    idx = res.index("location:")
+    location = res[idx + 1]
     return location
 
-def send_request(host, port, encoded_text, verbose, filename, path, query, method, redirect):
+
+def send_request(
+    host, port, encoded_text, verbose, filename, path, query, method, redirect
+):
     for _ in range(10):
         # Setting up socket for TCP connection
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -73,7 +77,6 @@ def send_request(host, port, encoded_text, verbose, filename, path, query, metho
             status_code = get_response_code(response)
             if redirect and status_code == 302:
                 path = get_new_location(response)
-                print(f"Redirecting to {path}...")
             else:
                 output(response, verbose, filename)
                 break
@@ -90,7 +93,9 @@ def run_get(verbose, header, url, filename, redirect):
     header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n"
     string_to_send = f"Host: {host}\r\nConnection: close\r\n{header_str}\r\n\r\n"
     # Send request
-    send_request(host, 80, string_to_send, verbose, filename, path, query, "GET", redirect)
+    send_request(
+        host, 80, string_to_send, verbose, filename, path, query, "GET", redirect
+    )
 
 
 def run_post(verbose, header, data, file, url, filename, redirect):
@@ -108,7 +113,9 @@ def run_post(verbose, header, data, file, url, filename, redirect):
     header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n"
     string_to_send = f"Host: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_length}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
     # Send request
-    send_request(host, 80, string_to_send, verbose, filename, path, query, "POST", redirect)
+    send_request(
+        host, 80, string_to_send, verbose, filename, path, query, "POST", redirect
+    )
 
 
 # -------------------- Main Method ------------------------
@@ -186,8 +193,8 @@ Use "httpc help [command]" for more information about a command.
     parser.add_argument(
         "-r",
         help="Specify if we want to redirect or not",
-        action="store_true",
-        default=False,
+        action="store_false",
+        default=True,
         required=False,
     )
     parser.add_argument("url")
