@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+access-control-allow-credentials: true
+access-control-allow-origin: *
+content-length: 594
+content-type: application/json; encoding=utf-8
+date: Fri, 11 Feb 2022 22:16:00 GMT
+server: Fly/f26bf2da (2022-02-11)
+via: 1.1 fly.io
+fly-request-id: 01FVNDQ09GJP8TD9TV0Q8V8ARQ
+
+{"args":{},"headers":{"Email":["123@gmail.com"],"Fly-Client-Ip":["142.126.0.55"],"Fly-Dispatch-Start":["t=1644617761073044;instance=edd2f518"],"Fly-Forwarded-Port":["80"],"Fly-Forwarded-Proto":["http"],"Fly-Forwarded-Ssl":["off"],"Fly-Region":["lga"],"Fly-Request-Id":["01FVNDQ09GJP8TD9TV0Q8V8ARQ"],"Host":["httpbingo.org"],"Password":["1234"],"Via":["1.1 fly.io"],"X-Forwarded-For":["142.126.0.55, 77.83.142.42"],"X-Forwarded-Port":["80"],"X-Forwarded-Proto":["http"],"X-Forwarded-Ssl":["off"],"X-Request-Start":["t=1644617761072938"]},"origin":"142.126.0.55","url":"http://httpbingo.org/get"}
