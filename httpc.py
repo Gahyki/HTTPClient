@@ -27,9 +27,9 @@ def get_file_data(file):
     data += "Content-Type: text/plain\r\n\r\n"
     data += file_str + "\r\n"
     data += "--" + boundary + "--"
-    content_lenght = len(data) + 2
+    content_length = len(data) + 2
     file.close()
-    return (boundary, content_lenght, data)
+    return boundary, content_length, data
 
 
 def send_request(host, port, encoded_text, verbose):
@@ -69,16 +69,16 @@ def run_post(verbose, header, data, file, url):
     # Deconstructing url
     host, path, query = deconstruct_url(url)
     # Assembling request data
-    content_lenght = 0
+    content_length = 0
     content_type = ""
     if data:
-        content_lenght = len(data)
+        content_length = len(data)
         content_type = "application/json"
     if file:
-        (boundary, content_lenght, data) = get_file_data(file)
+        boundary, content_length, data = get_file_data(file)
         content_type = f"multipart/form-data; boundary={boundary}"
     header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n"
-    string_to_send = f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_lenght}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
+    string_to_send = f"POST {path}{query} HTTP/1.1\r\nHost: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_length}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
     # Send request
     send_request(host, 80, string_to_send, verbose)
 
