@@ -10,10 +10,11 @@ import sys
 # -------------------- Helper Methods ------------------------
 def deconstruct_url(url):
     parsed_url = parse.urlsplit(url)
-    host = parsed_url.netloc
+    host = parsed_url.hostname
     path = parsed_url.path if parsed_url.path else "/"
     query = f"?{parsed_url.query}" if parsed_url.query else ""
-    return host, path, query
+    port = parsed_url.port if parsed_url.port else 80
+    return host, path, query, port
 
 
 def get_file_data(file):
@@ -88,19 +89,19 @@ def send_request(
 # -------------------- Request Methods ------------------------
 def run_get(verbose, header, url, filename, redirect):
     # Deconstructing url to get required data
-    host, path, query = deconstruct_url(url)
+    host, path, query, port = deconstruct_url(url)
     # Assemble header(s) and text
-    header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n"
+    header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n" if header else ""
     string_to_send = f"Host: {host}\r\nConnection: close\r\n{header_str}\r\n\r\n"
     # Send request
     send_request(
-        host, 80, string_to_send, verbose, filename, path, query, "GET", redirect
+        host, port, string_to_send, verbose, filename, path, query, "GET", redirect
     )
 
 
 def run_post(verbose, header, data, file, url, filename, redirect):
     # Deconstructing url
-    host, path, query = deconstruct_url(url)
+    host, path, query, port = deconstruct_url(url)
     # Assembling request data
     content_length = 0
     content_type = ""
@@ -110,11 +111,11 @@ def run_post(verbose, header, data, file, url, filename, redirect):
     if file:
         boundary, content_length, data = get_file_data(file)
         content_type = f"multipart/form-data; boundary={boundary}"
-    header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n"
+    header_str = "\r\n".join([": ".join(h.split(":")) for h in header]) + "\r\n" if header else ""
     string_to_send = f"Host: {host}\r\n{header_str}Connection: close\r\nContent-Length: {content_length}\r\nContent-Type: {content_type}\r\n\r\n{data}\r\n"
     # Send request
     send_request(
-        host, 80, string_to_send, verbose, filename, path, query, "POST", redirect
+        host, port, string_to_send, verbose, filename, path, query, "POST", redirect
     )
 
 
